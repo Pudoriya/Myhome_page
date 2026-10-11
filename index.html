@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER//HUB — Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            black: '#08080c',
+                            card: '#0f1017',
+                            border: '#1a1d2e',
+                            neonCyan: '#00f0ff',
+                            neonPink: '#ff0055',
+                            neonYellow: '#ffe600',
+                            neonGreen: '#00ff66',
+                            neonPurple: '#a855f7',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Chakra Petch', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #08080c;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 85, 0.05) 0%, transparent 50%),
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* Efeito Scanlines Cyberpunk */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 99;
+            opacity: 0.6;
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+            border-color: rgba(0, 240, 255, 0.6);
+        }
+        .glow-cyan:hover {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+            border-color: #00f0ff;
+        }
+
+        .glow-pink {
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+            border-color: rgba(255, 0, 85, 0.5);
+        }
+
+        .text-glow-cyan {
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
+        .text-glow-pink {
+            text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+        }
+
+        /* Clip path para cantos cortados cyberpunk */
+        .cyber-clip {
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        .cyber-clip-sm {
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00f0ff33;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-cyber-neonCyan selection:text-black">
+
+    <div id="scanlines" class="scanlines"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10 flex flex-col min-h-screen justify-between">
+        
+        <div>
+            <!-- HEADER / TOP BAR -->
+            <header class="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-cyber-border/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded bg-cyber-card border border-cyber-neonCyan/40 flex items-center justify-center glow-cyan">
+                        <i class="ph-bold ph-terminal-window text-2xl text-cyber-neonCyan"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-wider text-white flex items-center gap-2">
+                            CYBER<span class="text-cyber-neonCyan">//</span>HUB
+                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-neonCyan/10 text-cyber-neonCyan border border-cyber-neonCyan/30">v2.0</span>
+                        </h1>
+                        <p class="text-xs font-mono text-gray-500 uppercase tracking-widest">SYSTEM READY // LINK MATRIX</p>
+                    </div>
+                </div>
+
+                <!-- DIGITAL CLOCK -->
+                <div class="text-center md:text-right font-mono">
+                    <div id="clock" class="text-3xl sm:text-4xl font-bold text-cyber-neonCyan text-glow-cyan tracking-wider">
+                        00:00:00
+                    </div>
+                    <div id="date" class="text-xs text-cyber-neonPink text-glow-pink tracking-widest uppercase font-semibold">
+                        CARREGANDO DATA...
+                    </div>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleScanlines()" title="Toggle Scanlines FX" class="p-2.5 rounded bg-cyber-card border border-cyber-border hover:border-cyber-neonCyan/50 text-gray-400 hover:text-cyber-neonCyan transition">
+                        <i class="ph-bold ph-monitor text-lg"></i>
+                    </button>
+                    <button onclick="openConfigModal()" class="flex items-center gap-2 px-4 py-2 rounded bg-cyber-card border border-cyber-neonCyan/50 text-cyber-neonCyan hover:bg-cyber-neonCyan/10 transition font-mono text-sm font-semibold glow-cyan">
+                        <i class="ph-bold ph-gear"></i>
+                        <span>CONFIGURAR</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- SEARCH BAR -->
+            <section class="my-8">
+                <form id="search-form" onsubmit="executeSearch(event)" class="relative max-w-2xl mx-auto">
+                    <div class="relative flex items-center bg-cyber-card border border-cyber-border rounded-lg overflow-hidden glow-cyan transition-all duration-300">
+                        <!-- ENGINE SELECTOR -->
+                        <div class="relative flex items-center bg-cyber-black/60 border-r border-cyber-border px-3 py-3">
+                            <select id="search-engine" onchange="updateSearchPlaceholder()" class="bg-transparent text-xs font-mono text-cyber-neonCyan focus:outline-none cursor-pointer pr-2">
+                                <option value="google" class="bg-cyber-card text-white">Google</option>
+                                <option value="duckduckgo" class="bg-cyber-card text-white">DuckDuckGo</option>
+                                <option value="youtube" class="bg-cyber-card text-white">YouTube</option>
+                                <option value="github" class="bg-cyber-card text-white">GitHub</option>
+                                <option value="reddit" class="bg-cyber-card text-white">Reddit</option>
+                            </select>
+                        </div>
+
+                        <!-- INPUT -->
+                        <input type="text" id="search-input" placeholder="Pesquisar na Matrix..." class="w-full bg-transparent px-4 py-3 text-sm text-white focus:outline-none font-mono placeholder-gray-600">
+
+                        <!-- SUBMIT BUTTON -->
+                        <button type="submit" class="px-5 py-3 text-cyber-neonCyan hover:text-white hover:bg-cyber-neonCyan/20 transition">
+                            <i class="ph-bold ph-magnifying-glass text-lg"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- CATEGORIES & SITES GRID -->
+            <main id="categories-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
+                <!-- Renderizado via Javascript -->
+            </main>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-12 pt-4 border-t border-cyber-border/40 text-center font-mono text-xs text-gray-600 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span>STATUS: <span class="text-cyber-neonGreen">ONLINE</span></span> | 
+                <span>HOST: <span class="text-gray-400">GITHUB PAGES</span></span>
+            </div>
+            <div>
+                CYBER//STARTPAGE &copy; 2026 — PRONTO PARA PERSONALIZAR
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÃO / EDIÇÃO -->
+    <div id="config-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-cyber-card border border-cyber-neonCyan/60 rounded-lg max-w-3xl w-full max-h-[90vh] flex flex-col glow-cyan overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-cyber-border flex justify-between items-center bg-cyber-black/50">
+                <div class="flex items-center gap-2">
+                    <i class="ph-bold ph-sliders-horizontal text-cyber-neonCyan text-xl"></i>
+                    <h2 class="font-bold text-white tracking-wider font-mono">PAINEL DE CONFIGURAÇÃO</h2>
+                </div>
+                <button onclick="closeConfigModal()" class="text-gray-400 hover:text-cyber-neonPink text-xl font-bold">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content / Tabs -->
+            <div class="p-4 overflow-y-auto flex-1 font-mono text-sm space-y-6">
+                <!-- Ações Rápidas -->
+                <div class="flex flex-wrap gap-2 justify-between items-center bg-cyber-black/40 p-3 rounded border border-cyber-border">
+                    <div class="text-xs text-gray-400">
+                        Altere os dados abaixo ou exporte o JSON para colocar no GitHub.
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="addNewCategoryPrompt()" class="px-3 py-1.5 bg-cyber-neonCyan/20 text-cyber-neonCyan border border-cyber-neonCyan/50 rounded hover:bg-cyber-neonCyan/30 text-xs">
+                            + Nova Categoria
+                        </button>
+                        <button onclick="exportJSON()" class="px-3 py-1.5 bg-cyber-neonYellow/20 text-cyber-neonYellow border border-cyber-neonYellow/50 rounded hover:bg-cyber-neonYellow/30 text-xs">
+                            Exportar JSON
+                        </button>
+                        <button onclick="importJSONPrompt()" class="px-3 py-1.5 bg-cyber-neonPurple/20 text-cyber-neonPurple border border-cyber-neonPurple/50 rounded hover:bg-cyber-neonPurple/30 text-xs">
+                            Importar JSON
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Categorias & Sites para Edição -->
+                <div id="modal-editor-list" class="space-y-4">
+                    <!-- Gerado Dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-cyber-border bg-cyber-black/50 flex justify-between items-center">
+                <button onclick="resetToDefault()" class="text-xs text-cyber-neonPink hover:underline">
+                    Restaurar Padrões
+                </button>
+                <button onclick="saveAndCloseModal()" class="px-6 py-2 bg-cyber-neonCyan text-black font-bold rounded hover:bg-white transition glow-cyan">
+                    SALVAR & APLICAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO PADRÃO (Utilizada no primeiro acesso ou reset)
+        const DEFAULT_CONFIG = [
+            {
+                id: 'cat-1',
+                title: 'COMPRAS // MARKET',
+                color: 'cyan',
+                sites: [
+                    { name: 'Mercado Livre', url: 'https://www.mercadolivre.com.br', icon: '' },
+                    { name: 'Amazon', url: 'https://www.amazon.com.br', icon: '' },
+                    { name: 'AliExpress', url: 'https://www.aliexpress.com', icon: '' },
+                    { name: 'Shopee', url: 'https://shopee.com.br', icon: '' }
+                ]
+            },
+            {
+                id: 'cat-2',
+                title: 'DEV // TOOLS',
+                color: 'pink',
+                sites: [
+                    { name: 'GitHub', url: 'https://github.com', icon: '' },
+                    { name: 'Stack Overflow', url: 'https://stackoverflow.com', icon: '' },
+                    { name: 'ChatGPT', url: 'https://chat.openai.com', icon: '' },
+                    { name: 'MDN Web Docs', url: 'https://developer.mozilla.org', icon: '' }
+                ]
+            },
+            {
+                id: 'cat-3',
+                title: 'MIDIA // LAZER',
+                color: 'yellow',
+                sites: [
+                    { name: 'YouTube', url: 'https://www.youtube.com', icon: '' },
+                    { name: 'Netflix', url: 'https://www.netflix.com', icon: '' },
+                    { name: 'Twitch', url: 'https://www.twitch.tv', icon: '' },
+                    { name: 'Spotify', url: 'https://open.spotify.com', icon: '' }
+                ]
+            },
+            {
+                id: 'cat-4',
+                title: 'REDES // SOCIAL',
+                color: 'purple',
+                sites: [
+                    { name: 'Reddit', url: 'https://www.reddit.com', icon: '' },
+                    { name: 'X / Twitter', url: 'https://x.com', icon: '' },
+                    { name: 'Discord', url: 'https://discord.com/app', icon: '' },
+                    { name: 'WhatsApp', url: 'https://web.whatsapp.com', icon: '' }
+                ]
+            }
+        ];
+
+        let currentConfig = [];
+
+        // Inicialização
+        window.onload = function() {
+            startClock();
+            loadConfig();
+            renderDashboard();
+            updateSearchPlaceholder();
+        };
+
+        // Relógio Cyberpunk
+        function startClock() {
+            function update() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+
+                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                document.getElementById('date').innerText = now.toLocaleDateString('pt-BR', options).toUpperCase();
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        // Toggles & Utilitários
+        function toggleScanlines() {
+            const el = document.getElementById('scanlines');
+            el.classList.toggle('hidden');
+        }
+
+        // Motores de Pesquisa
+        function updateSearchPlaceholder() {
+            const engine = document.getElementById('search-engine').value;
+            const input = document.getElementById('search-input');
+            input.placeholder = `Pesquisar via ${engine.toUpperCase()}...`;
+        }
+
+        function executeSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) return;
+
+            const engine = document.getElementById('search-engine').value;
+            let url = '';
+
+            switch(engine) {
+                case 'duckduckgo': url = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`; break;
+                case 'youtube': url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; break;
+                case 'github': url = `https://github.com/search?q=${encodeURIComponent(query)}`; break;
+                case 'reddit': url = `https://www.reddit.com/search/?q=${encodeURIComponent(query)}`; break;
+                default: url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
+            }
+
+            window.location.href = url;
+        }
+
+        function loadConfig() {
+            const saved = localStorage.getItem('cyber_startpage_config');
+            if (saved) {
+                try {
+                    currentConfig = JSON.parse(saved);
+                } catch(e) {
+                    currentConfig = DEFAULT_CONFIG;
+                }
+            } else {
+                currentConfig = DEFAULT_CONFIG;
+            }
+        }
+
+        function saveConfig() {
+            localStorage.setItem('cyber_startpage_config', JSON.stringify(currentConfig));
+            renderDashboard();
+        }
+
+        // Favicon Helper (Google Favicon API com Fallback)
+        function getFaviconUrl(site) {
+            if (site.icon && site.icon.trim() !== '') return site.icon;
+            try {
+                const domain = new URL(site.url).hostname;
+                return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        // Renderização Principal do Dashboard
+        function renderDashboard() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            currentConfig.forEach(cat => {
+                const catEl = document.createElement('div');
+                catEl.className = 'bg-cyber-card/80 border border-cyber-border rounded-lg p-4 relative flex flex-col justify-between hover:border-cyber-neonCyan/30 transition-all duration-300';
+                
+                // Banner / Header da Categoria
+                let headerColorClass = 'text-cyber-neonCyan border-cyber-neonCyan/40';
+                if(cat.color === 'pink') headerColorClass = 'text-cyber-neonPink border-cyber-neonPink/40';
+                if(cat.color === 'yellow') headerColorClass = 'text-cyber-neonYellow border-cyber-neonYellow/40';
+                if(cat.color === 'purple') headerColorClass = 'text-cyber-neonPurple border-cyber-neonPurple/40';
+
+                let html = `
+                    <div>
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b ${headerColorClass}">
+                            <h2 class="font-bold tracking-wider font-mono text-sm flex items-center gap-2">
+                                <span class="inline-block w-2 h-2 rounded-full bg-current"></span>
+                                ${cat.title}
+                            </h2>
+                            <span class="text-[10px] font-mono text-gray-500">${cat.sites.length} LINKS</span>
+                        </div>
+
+                        <!-- Grid de Sites -->
+                        <div class="grid grid-cols-2 gap-2.5">
+                `;
+
+                cat.sites.forEach(site => {
+                    const iconUrl = getFaviconUrl(site);
+                    const letterFallback = site.name ? site.name.charAt(0).toUpperCase() : '?';
+
+                    html += `
+                        <a href="${site.url}" target="_self" class="group relative flex items-center gap-2.5 p-2.5 rounded bg-cyber-black/60 border border-cyber-border hover:border-cyber-neonCyan/60 hover:bg-cyber-neonCyan/5 transition-all duration-200 overflow-hidden">
+                            <div class="w-7 h-7 rounded bg-cyber-card flex items-center justify-center shrink-0 border border-cyber-border group-hover:border-cyber-neonCyan/50 overflow-hidden">
+                                ${iconUrl 
+                                    ? `<img src="${iconUrl}" alt="" class="w-4 h-4 object-contain group-hover:scale-110 transition-transform" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                       <span class="text-xs font-bold text-cyber-neonCyan hidden">${letterFallback}</span>`
+                                    : `<span class="text-xs font-bold text-cyber-neonCyan">${letterFallback}</span>`
+                                }
+                            </div>
+                            <span class="text-xs font-mono font-medium text-gray-300 group-hover:text-white truncate">
+                                ${site.name}
+                            </span>
+                        </a>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                catEl.innerHTML = html;
+                container.appendChild(catEl);
+            });
+        }
+
+        function openConfigModal() {
+            renderModalEditor();
+            document.getElementById('config-modal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('config-modal').classList.add('hidden');
+        }
+
+        function renderModalEditor() {
+            const container = document.getElementById('modal-editor-list');
+            container.innerHTML = '';
+
+            currentConfig.forEach((cat, catIdx) => {
+                const catBox = document.createElement('div');
+                catBox.className = 'p-3 bg-cyber-black/60 border border-cyber-border rounded space-y-3';
+
+                let sitesHtml = '';
+                cat.sites.forEach((site, siteIdx) => {
+                    sitesHtml += `
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-cyber-card p-2 rounded border border-cyber-border/60 text-xs">
+                            <input type="text" value="${site.name}" onchange="updateSite(${catIdx}, ${siteIdx}, 'name', this.value)" placeholder="Nome" class="sm:col-span-3 bg-cyber-black px-2 py-1 border border-cyber-border rounded text-white focus:outline-none focus:border-cyber-neonCyan">
+                            <input type="text" value="${site.url}" onchange="updateSite(${catIdx}, ${siteIdx}, 'url', this.value)" placeholder="URL" class="sm:col-span-5 bg-cyber-black px-2 py-1 border border-cyber-border rounded text-white focus:outline-none focus:border-cyber-neonCyan">
+                            <input type="text" value="${site.icon || ''}" onchange="updateSite(${catIdx}, ${siteIdx}, 'icon', this.value)" placeholder="Ícone URL (Opcional)" class="sm:col-span-3 bg-cyber-black px-2 py-1 border border-cyber-border rounded text-white focus:outline-none focus:border-cyber-neonCyan">
+                            <button onclick="removeSite(${catIdx}, ${siteIdx})" class="sm:col-span-1 text-cyber-neonPink hover:text-white text-center font-bold">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                catBox.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 pb-2 border-b border-cyber-border">
+                        <input type="text" value="${cat.title}" onchange="updateCatTitle(${catIdx}, this.value)" class="bg-transparent font-bold text-cyber-neonCyan focus:outline-none border-b border-dashed border-cyber-neonCyan/40">
+                        <div class="flex items-center gap-2">
+                            <button onclick="addSitePrompt(${catIdx})" class="text-xs px-2 py-1 bg-cyber-neonCyan/10 text-cyber-neonCyan border border-cyber-neonCyan/30 rounded hover:bg-cyber-neonCyan/20">
+                                + Add Site
+                            </button>
+                            <button onclick="removeCategory(${catIdx})" class="text-xs text-cyber-neonPink hover:underline">
+                                Excluir Categoria
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${sitesHtml}
+                    </div>
+                `;
+
+                container.appendChild(catBox);
+            });
+        }
+
+        // Ações de Edição do Editor
+        function updateCatTitle(catIdx, val) {
+            currentConfig[catIdx].title = val;
+        }
+
+        function updateSite(catIdx, siteIdx, field, val) {
+            currentConfig[catIdx].sites[siteIdx][field] = val;
+        }
+
+        function removeSite(catIdx, siteIdx) {
+            currentConfig[catIdx].sites.splice(siteIdx, 1);
+            renderModalEditor();
+        }
+
+        function addSitePrompt(catIdx) {
+            currentConfig[catIdx].sites.push({ name: 'Novo Site', url: 'https://', icon: '' });
+            renderModalEditor();
+        }
+
+        function addNewCategoryPrompt() {
+            currentConfig.push({
+                id: 'cat-' + Date.now(),
+                title: 'NOVA CATEGORIA',
+                color: 'cyan',
+                sites: []
+            });
+            renderModalEditor();
+        }
+
+        function removeCategory(catIdx) {
+            if (confirm('Tem certeza que deseja excluir esta categoria?')) {
+                currentConfig.splice(catIdx, 1);
+                renderModalEditor();
+            }
+        }
+
+        function saveAndCloseModal() {
+            saveConfig();
+            closeConfigModal();
+        }
+
+        function resetToDefault() {
+            if (confirm('Deseja restaurar todas as configurações para o padrão original?')) {
+                currentConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+                saveConfig();
+                closeConfigModal();
+            }
+        }
+
+        // Exportar e Importar JSON (Perfeito para sincronizar com GitHub)
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "config.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importJSONPrompt() {
+            const jsonText = prompt("Cole o conteúdo do seu JSON de configuração aqui:");
+            if (jsonText) {
+                try {
+                    const parsed = JSON.parse(jsonText);
+                    if (Array.isArray(parsed)) {
+                        currentConfig = parsed;
+                        saveConfig();
+                        renderModalEditor();
+                        alert('Configuração importada com sucesso!');
+                    } else {
+                        alert('JSON inválido. Deve ser uma lista de categorias.');
+                    }
+                } catch(e) {
+                    alert('Erro ao processar JSON.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
