@@ -7,25 +7,27 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <style>
     :root {
       --bg-color: #F4F6F4;
       --card-bg: #FFFFFF;
       --card-hover: #F8FAF8;
-      
+
       --terracotta: #D96B43;
       --terracotta-light: #FDF0EC;
       --terracotta-hover: #C55A33;
-      
+
       --sage: #7A9A8B;
       --sage-light: #EBF2EE;
       --sage-dark: #2C4035;
-      
+
       --text-main: #222B27;
       --text-muted: #6B7B73;
       --border-color: #E2E8E4;
-      
+      --danger: #d9534f;
+      --danger-light: #fdf2f2;
+
       --shadow-sm: 0 2px 8px rgba(44, 64, 53, 0.04);
       --shadow-md: 0 8px 24px rgba(44, 64, 53, 0.08);
       --radius-pill: 999px;
@@ -253,8 +255,8 @@
       padding: 2rem;
       border-radius: var(--radius-card);
       width: 90%;
-      max-width: 500px;
-      max-height: 80vh;
+      max-width: 550px;
+      max-height: 85vh;
       overflow-y: auto;
       box-shadow: var(--shadow-md);
     }
@@ -262,7 +264,7 @@
     .modal-title {
       font-size: 1.3rem;
       color: var(--sage-dark);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
 
     .form-group {
@@ -285,10 +287,59 @@
       outline: none;
     }
 
+    .divider {
+      margin: 1.5rem 0;
+      border: none;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      padding-right: 4px;
+    }
+
+    .manage-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-color);
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .manage-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+
+    .btn-danger {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: none;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
     .btn-group {
       display: flex;
       gap: 0.5rem;
-      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
     }
 
     .btn {
@@ -329,7 +380,7 @@
   <!-- Modal de edição -->
   <div class="modal" id="modal">
     <div class="modal-content">
-      <h3 class="modal-title">Adicionar / Gerenciar Links</h3>
+      <h3 class="modal-title">Adicionar Novo Site</h3>
       <div class="form-group">
         <label>Categoria</label>
         <input type="text" id="catInput" class="form-control" placeholder="Ex: Compras, Dev, Redes">
@@ -344,6 +395,17 @@
       </div>
       <div class="btn-group">
         <button class="btn btn-primary" onclick="addSite()">Salvar Novo Site</button>
+      </div>
+
+      <hr class="divider">
+
+      <h3 class="modal-title" style="font-size: 1.1rem;">Gerenciar / Remover Links Existentes</h3>
+      <div class="manage-list" id="manageList">
+        <!-- Preenchido via JavaScript -->
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="clearAllData()" style="background: var(--danger-light); color: var(--danger);">Limpar Tudo / Do Zero</button>
         <button class="btn btn-secondary" onclick="exportJSON()">Exportar JSON</button>
         <button class="btn btn-secondary" onclick="toggleModal()">Fechar</button>
       </div>
@@ -376,7 +438,7 @@
       const grid = document.getElementById('mainGrid');
       grid.innerHTML = '';
 
-      data.forEach(cat => {
+      data.forEach((cat, catIndex) => {
         const sec = document.createElement('div');
         sec.className = 'category-section';
         sec.innerHTML = `<div class="category-title">${cat.category}</div>`;
@@ -401,13 +463,57 @@
         sec.appendChild(cardsGrid);
         grid.appendChild(sec);
       });
+
+      renderManageList();
+    }
+
+    function renderManageList() {
+      const manageList = document.getElementById('manageList');
+      manageList.innerHTML = '';
+
+      if (data.length === 0) {
+        manageList.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 1rem;">Nenhum link cadastrado.</span>';
+        return;
+      }
+
+      data.forEach((cat, catIndex) => {
+        cat.sites.forEach((site, siteIndex) => {
+          const item = document.createElement('div');
+          item.className = 'manage-item';
+          item.innerHTML = `
+            <span><b>${cat.category}</b> &rsaquo; ${site.name}</span>
+            <button class="btn-danger" onclick="removeSite(${catIndex}, ${siteIndex})">Remover</button>
+          `;
+          manageList.appendChild(item);
+        });
+      });
+    }
+
+    function removeSite(catIndex, siteIndex) {
+      data[catIndex].sites.splice(siteIndex, 1);
+      
+      // Se a categoria ficar vazia, removemos a categoria também
+      if (data[catIndex].sites.length === 0) {
+        data.splice(catIndex, 1);
+      }
+
+      localStorage.setItem('startpage_data', JSON.stringify(data));
+      render();
+    }
+
+    function clearAllData() {
+      if (confirm('Tem certeza que deseja limpar tudo e começar do zero?')) {
+        data = [];
+        localStorage.setItem('startpage_data', JSON.stringify(data));
+        render();
+      }
     }
 
     function setEngine(engine, btn) {
       document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const form = document.getElementById('searchForm');
-      
+
       if(engine === 'google') form.action = 'https://www.google.com/search';
       if(engine === 'ddg') form.action = 'https://duckduckgo.com/';
       if(engine === 'youtube') form.action = 'https://www.youtube.com/results';
@@ -439,9 +545,8 @@
 
       targetCat.sites.push({ name: title, url: url });
       localStorage.setItem('startpage_data', JSON.stringify(data));
-      
+
       render();
-      toggleModal();
       document.getElementById('catInput').value = '';
       document.getElementById('titleInput').value = '';
       document.getElementById('urlInput').value = '';
